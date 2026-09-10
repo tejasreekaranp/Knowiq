@@ -1,23 +1,32 @@
 import { generateRevisionRequestSchema } from '../../src/lib/schemas';
-import { getGeminiClient, callGeminiWithRetry } from '../../src/server/app';
+import { getGeminiClient, callGeminiWithRetry } from '../../src/server/gemini';
 
 export default async function handler(req: any, res: any) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Content-Type', 'application/json');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const reqVal = generateRevisionRequestSchema.safeParse(req.body);
-  const { topicTitles, revisionType, difficulty, questionCount } = reqVal.success
-    ? reqVal.data
-    : { topicTitles: ['Database Systems'], revisionType: 'Mixed', difficulty: 'Medium', questionCount: 5 };
-
   try {
-    const ai = getGeminiClient();
+    const rawBody = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    const reqVal = generateRevisionRequestSchema.safeParse(rawBody);
+    const { topicTitles, revisionType, difficulty, questionCount } = reqVal.success
+      ? reqVal.data
+      : { topicTitles: ['Database Systems'], revisionType: 'Mixed', difficulty: 'Medium', questionCount: 5 };
 
-    if (ai) {
-      const prompt = `You are an adaptive exam generator.
+    try {
+      const ai = getGeminiClient();
+
+      if (ai) {
+        const prompt = `You are an adaptive exam generator.
 Selected Topics: ${JSON.stringify(topicTitles)}
 Revision Type: ${revisionType}
 Difficulty Level: ${difficulty}
@@ -45,23 +54,26 @@ Output strictly JSON:
   ]
 }`;
 
-      const raw = await callGeminiWithRetry(ai, prompt, { responseMimeType: 'application/json' });
-      if (raw) {
-        let text = raw.trim();
-        if (text.startsWith('```json')) {
-          text = text.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-        } else if (text.startsWith('```')) {
-          text = text.replace(/^```\s*/, '').replace(/\s*```$/, '');
-        }
-        try {
-          const parsed = JSON.parse(text);
-          if (parsed && Array.isArray(parsed.questions) && parsed.questions.length > 0) {
-            return res.status(200).json(parsed);
+        const raw = await callGeminiWithRetry(ai, prompt, { responseMimeType: 'application/json' });
+        if (raw) {
+          let text = raw.trim();
+          if (text.startsWith('```json')) {
+            text = text.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+          } else if (text.startsWith('```')) {
+            text = text.replace(/^```\s*/, '').replace(/\s*```$/, '');
           }
-        } catch {
-          // Fall through to fallback
+          try {
+            const parsed = JSON.parse(text);
+            if (parsed && Array.isArray(parsed.questions) && parsed.questions.length > 0) {
+              return res.status(200).json(parsed);
+            }
+          } catch {
+            // Fall through to default mock questions
+          }
         }
       }
+    } catch (engineErr) {
+      console.warn('[generate-revision] AI generation warning, using fallback:', engineErr);
     }
 
     return res.status(200).json({
@@ -93,8 +105,8 @@ Output strictly JSON:
         }
       ]
     });
-  } catch (err: any) {
-    console.error('[generate-revision] Revision generation failed:', err);
+  } catch (fatalError: any) {
+    console.error('[generate-revision] Fatal handler error:', fatalError);
     return res.status(500).json({ error: 'Failed to generate revision test' });
   }
 }
