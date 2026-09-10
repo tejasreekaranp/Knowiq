@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build:api": "esbuild src/api-handlers/health.ts --bundle --platform=node --format=esm --packages=external --outfile=api/health.js && esbuild src/api-handlers/ai/*.ts --bundle --platform=node --format=esm --packages=external --outdir=api/ai",
+    "build:api": "esbuild src/api-handlers/index.ts --bundle --platform=node --format=esm --packages=external --outfile=api/index.js && esbuild src/api-handlers/health.ts --bundle --platform=node --format=esm --packages=external --outfile=api/health.js",
     "build": "vite build && npm run build:api",
     "start": "tsx server.ts",
     "preview": "vite preview",
