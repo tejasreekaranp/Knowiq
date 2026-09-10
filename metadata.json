@@ -1,0 +1,6 @@
+{
+  "name": "KnowIQ - Adaptive Learning System",
+  "description": "An adaptive learning platform with syllabus-driven learning paths, 4-step clarity engine, spaced revision, and faculty analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
