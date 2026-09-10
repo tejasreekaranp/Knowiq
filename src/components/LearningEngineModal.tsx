@@ -261,17 +261,26 @@ export const LearningEngineModal: React.FC<LearningEngineModalProps> = ({
         }),
       });
       if (!res.ok) {
-        throw new Error(`Server returned ${res.status}`);
+        console.error(`[LearningEngineModal] /api/ai/subtopic-content failed with status ${res.status}`);
+        if (res.status === 404) {
+          throw new Error('Learning service is temporarily unavailable. Please verify connection and retry.');
+        } else if (res.status === 429) {
+          throw new Error('AI generation capacity is temporarily high. Please wait a few seconds and retry.');
+        } else if (res.status >= 500) {
+          throw new Error('The learning service encountered a temporary issue while synthesizing content. Click below to retry.');
+        } else {
+          throw new Error('Learning service is unavailable. Please try again.');
+        }
       }
       const data = await res.json();
       if (data && data.conceptual) {
         setContent(data);
         initializeInteractiveState(data.interactive);
       } else {
-        throw new Error('Incomplete content response');
+        throw new Error('Incomplete content response received from learning service.');
       }
     } catch (err: any) {
-      setContentError(err?.message || 'Unable to generate learning packet. Please try again.');
+      setContentError(err?.message || 'Learning service is unavailable. Please try again.');
     } finally {
       setIsLoadingContent(false);
     }
@@ -400,7 +409,8 @@ export const LearningEngineModal: React.FC<LearningEngineModalProps> = ({
         }),
       });
       if (!res.ok) {
-        throw new Error(`Server returned ${res.status}`);
+        console.error(`[LearningEngineModal] /api/ai/diagnose-clarity failed with status ${res.status}`);
+        throw new Error(`Diagnostic failed with status ${res.status}`);
       }
       const data: ClarityDiagnostic = await res.json();
       setDiagnostic(data);
