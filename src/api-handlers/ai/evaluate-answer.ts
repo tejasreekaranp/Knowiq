@@ -1,5 +1,5 @@
-import { answerEvaluationRequestSchema } from '../../src/lib/schemas';
-import { evaluateAnswer } from '../../src/server/learningEngine';
+import { answerEvaluationRequestSchema } from '../../lib/schemas';
+import { evaluateAnswer } from '../../server/learningEngine';
 
 export default function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');

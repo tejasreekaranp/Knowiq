@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "start": "node dist/server.cjs",
+    "build:api": "esbuild src/api-handlers/health.ts --bundle --platform=node --format=esm --packages=external --outfile=api/health.js && esbuild src/api-handlers/ai/*.ts --bundle --platform=node --format=esm --packages=external --outdir=api/ai",
+    "build": "vite build && npm run build:api",
+    "start": "tsx server.ts",
     "preview": "vite preview",
-    "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

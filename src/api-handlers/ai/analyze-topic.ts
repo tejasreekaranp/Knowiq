@@ -1,6 +1,6 @@
-import { topicAnalysisRequestSchema } from '../../src/lib/schemas';
-import { runTopicAnalysisPipeline } from '../../src/server/topicEngine';
-import { getGeminiClient, callGeminiWithRetry } from '../../src/server/gemini';
+import { topicAnalysisRequestSchema } from '../../lib/schemas';
+import { runTopicAnalysisPipeline } from '../../server/topicEngine';
+import { getGeminiClient, callGeminiWithRetry } from '../../server/gemini';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');

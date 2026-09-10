@@ -1,7 +1,7 @@
-import { subtopicContentRequestSchema } from '../../src/lib/schemas';
-import { generateSourceGroundedContent } from '../../src/server/sourceEngine';
-import { generateDynamicSubtopicContent } from '../../src/server/contentGenerator';
-import { getGeminiClient, callGeminiWithRetry } from '../../src/server/gemini';
+import { subtopicContentRequestSchema } from '../../lib/schemas';
+import { generateSourceGroundedContent } from '../../server/sourceEngine';
+import { generateDynamicSubtopicContent } from '../../server/contentGenerator';
+import { getGeminiClient, callGeminiWithRetry } from '../../server/gemini';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');

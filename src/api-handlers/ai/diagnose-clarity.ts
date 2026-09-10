@@ -1,6 +1,6 @@
-import { diagnoseClarityRequestSchema } from '../../src/lib/schemas';
-import { diagnoseSubtopicClarity } from '../../src/server/sourceEngine';
-import { getGeminiClient, callGeminiWithRetry } from '../../src/server/gemini';
+import { diagnoseClarityRequestSchema } from '../../lib/schemas';
+import { diagnoseSubtopicClarity } from '../../server/sourceEngine';
+import { getGeminiClient, callGeminiWithRetry } from '../../server/gemini';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
